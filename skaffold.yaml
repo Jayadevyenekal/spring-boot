@@ -1,0 +1,30 @@
+apiVersion: skaffold/v1beta2
+kind: Config
+build:
+  artifacts:
+  - image: changeme
+    context: .
+    docker: {}
+  tagPolicy:
+    envTemplate:
+      template: '{{.DOCKER_REGISTRY}}/houssem-dellai/springboot-jenkinsx:{{.VERSION}}'
+  local: {}
+deploy:
+  kubectl: {}
+profiles:
+- name: dev
+  build:
+    artifacts:
+    - docker: {}
+    tagPolicy:
+      envTemplate:
+        template: '{{.DOCKER_REGISTRY}}/houssem-dellai/springboot-jenkinsx:{{.DIGEST_HEX}}'
+    local: {}
+  deploy:
+    helm:
+      releases:
+      - name: springboot-jenkinsx
+        chartPath: charts/springboot-jenkinsx
+        setValueTemplates:
+          image.repository: '{{.DOCKER_REGISTRY}}/houssem-dellai/springboot-jenkinsx'
+          image.tag: '{{.DIGEST_HEX}}'
